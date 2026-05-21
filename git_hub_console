@@ -1,0 +1,101 @@
+import os
+import sys
+import json
+import datetime
+
+class ProfoundGitBridge:
+    def __init__(self):
+        self.config_file = "secret_config.json"
+        self.repo_name = "serkankeklik/Dosojin"
+        self.username = None
+        self.token = None
+        
+        # Self-correcting setup validation
+        self._load_secure_credentials()
+
+    def _load_secure_credentials(self):
+        """Loads and verifies local credentials to prevent pipeline failures."""
+        if not os.path.exists(self.config_file):
+            # Auto-generate a template if missing
+            default_config = {"username": "serkankeklik", "token": "PASTE_YOUR_TOKEN_HERE"}
+            with open(self.config_file, "w", encoding="utf-8") as f:
+                json.dump(default_config, f, indent=4)
+            print(f"🛑 Error: '{self.config_file}' was missing.")
+            print("👉 A blank template has been created. Please paste your GitHub Token into it.")
+            sys.exit(1)
+            
+        with open(self.config_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            self.username = data.get("username", "").strip()
+            self.token = data.get("token", "").strip()
+
+        if "YOUR_GITHUB_TOKEN" in self.token or "PASTE_YOUR_TOKEN" in self.token:
+            print("🛑 Error: You haven't updated 'secret_config.json' with your real GitHub token.")
+            sys.exit(1)
+
+    def _get_authenticated_url(self):
+        """Injects credentials directly into the network string to bypass terminal inputs."""
+        return f"https://{self.username}:{self.token}@github.com/{self.repo_name}.git"
+
+    def run_interface(self):
+        """Launches the streamlined mobile command center."""
+        while True:
+            print("\n" + "═"*45)
+            print("🪐 DOSOJIN ADVANCED MOBILE GIT ENGINE")
+            print("═"*45)
+            print("1️⃣  - WORKSPACE STATUS : Inspect local file edits")
+            print("2️⃣  - SNAPSHOT BACKUP  : Stage and commit all changes")
+            print("3️⃣  - CLOUD PUSH       : Force seamless upload to GitHub")
+            print("4️⃣  - CLOUD PULL       : Download latest changes to iPhone")
+            print("0️⃣  - TERMINATE        : Close environment link")
+            print("═"*45)
+            
+            choice = input("Select operation (0-4): ").strip()
+            
+            if choice == "1":
+                print("\n🔍 Scanning for local modifications...")
+                os.system("git status -s")
+                
+            elif choice == "2":
+                print("\n📦 Packing modified files into local memory...")
+                os.system("git add .")
+                
+                commit_msg = input("📝 Enter descriptive backup note (or leave blank for timestamp): ").strip()
+                if not commit_msg:
+                    timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+                    commit_msg = f"Automated iOS Snapshot: {timestamp}"
+                
+                os.system(f'git commit -m "{commit_msg}"')
+                print("✅ Workspace snapshot saved locally.")
+                
+            elif choice == "3":
+                print("\n🚀 Initializing secure cloud sync pipeline...")
+                auth_url = self._get_authenticated_url()
+                
+                # Push code cleanly by piping the authenticated URL string directly to git
+                status = os.system(f"git push {auth_url} main")
+                
+                if status == 0:
+                    print("🎉 Sync Successful! Your GitHub profile is now 100% up to date.")
+                else:
+                    print("❌ Sync Failed. Double-check your token permissions inside secret_config.json.")
+                    
+            elif choice == "4":
+                print("\n📥 Checking cloud servers for updates...")
+                auth_url = self._get_authenticated_url()
+                status = os.system(f"git pull {auth_url} main")
+                
+                if status == 0:
+                    print("✅ Workspace successfully updated with your latest cloud files.")
+                else:
+                    print("❌ Pull failed. Verify your internet connection or token validity.")
+                    
+            elif choice == "0":
+                print("👋 Disconnecting Engine. Happy coding, Serkan!")
+                break
+            else:
+                print("❌ Input unrecognized. Select a valid index (0-4).")
+
+if __name__ == "__main__":
+    engine = ProfoundGitBridge()
+    engine.run_interface()
