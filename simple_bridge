@@ -1,0 +1,41 @@
+import urllib.request
+import base64
+import json
+
+# ---------- SETTINGS ----------
+USER = "serkankeklik"
+REPO = "Dosojin"
+TOKEN = "your_token_here"      # <--- CHANGE THIS to your real token
+# -----------------------------
+
+def upload_this_file():
+    filename = "simple_bridge.py"   # uploads itself
+    url = f"https://api.github.com/repos/{USER}/{REPO}/contents/{filename}"
+    
+    # Read this script's content
+    with open(filename, "r") as f:
+        content = f.read()
+    encoded = base64.b64encode(content.encode()).decode()
+    
+    # Prepare upload data
+    data = json.dumps({
+        "message": "Upload from Pyto test",
+        "content": encoded,
+        "branch": "main"
+    }).encode()
+    
+    req = urllib.request.Request(url, data=data, method="PUT")
+    req.add_header("Authorization", f"token {TOKEN}")
+    req.add_header("Accept", "application/vnd.github.v3+json")
+    
+    try:
+        response = urllib.request.urlopen(req)
+        print("✅ SUCCESS! File uploaded to GitHub.")
+        print("   Check your repo: https://github.com/serkankeklik/Dosojin")
+    except Exception as e:
+        print("❌ FAILED. Error:")
+        print(e)
+
+if __name__ == "__main__":
+    print("Uploading this script to GitHub...")
+    upload_this_file()
